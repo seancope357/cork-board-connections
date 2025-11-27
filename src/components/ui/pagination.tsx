@@ -3,7 +3,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
-} from "lucide-react@0.487.0";
+} from "lucide-react";
 
 import { cn } from "./utils";
 import { Button, buttonVariants } from "./button";
@@ -69,12 +69,14 @@ function PaginationPrevious({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { size: _size, ...restProps } = props;
   return (
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
-      {...props}
+      {...restProps}
     >
       <ChevronLeftIcon />
       <span className="hidden sm:block">Previous</span>
@@ -86,12 +88,14 @@ function PaginationNext({
   className,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { size: _size, ...restProps } = props;
   return (
     <PaginationLink
       aria-label="Go to next page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
-      {...props}
+      {...restProps}
     >
       <span className="hidden sm:block">Next</span>
       <ChevronRightIcon />

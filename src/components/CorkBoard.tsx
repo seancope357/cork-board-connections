@@ -8,6 +8,7 @@ import { ImageModal } from './ImageModal';
 import { useBoard, useConnections } from '@/hooks';
 import { useNotification } from '@/contexts/NotificationContext';
 import { DEFAULT_NOTE_WIDTH, DEFAULT_IMAGE_WIDTH } from '@/constants';
+import type { BoardItem } from '@/types';
 
 export function CorkBoard() {
   const boardRef = useRef<HTMLDivElement>(null);
@@ -74,7 +75,7 @@ export function CorkBoard() {
 
   // Handle save from modals
   const handleSaveItem = useCallback(
-    (updates: Partial<typeof editingItem>) => {
+    (updates: Partial<BoardItem>) => {
       if (editingItem) {
         updateItem(editingItem.id, updates);
         closeItemEditor();

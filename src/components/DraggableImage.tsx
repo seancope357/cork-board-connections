@@ -49,7 +49,6 @@ export function DraggableImage({
   const hasTags = metadata?.tags && metadata.tags.length > 0;
   const hasLocation = metadata?.location && metadata.location.trim() !== '';
   const hasCamera = metadata?.camera && metadata.camera.trim() !== '';
-  const hasMetadata = Object.keys(metadata || {}).length > 0;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).tagName === 'BUTTON') {
@@ -140,7 +139,7 @@ export function DraggableImage({
       purple: 'bg-purple-600 border-purple-700',
       black: 'bg-black border-neutral-800',
     };
-    return colors[colorName] || colors.blue;
+    return colors[colorName] || colors['blue']!;
   };
 
   const thumbtackClass = getThumbtackColorClass(thumbtackColor);

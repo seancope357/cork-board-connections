@@ -103,6 +103,7 @@ export function useResize(
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
+    return undefined;
   }, [resizeState.isResizing, handleMouseMove, handleMouseUp]);
 
   return {

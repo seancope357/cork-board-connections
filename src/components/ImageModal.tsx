@@ -261,35 +261,35 @@ export function ImageModal({ item, onClose, onSave }: ImageModalProps) {
               <input
                 type="text"
                 placeholder="Dimensions"
-                value={typeof metadata.dimensions === 'string' ? metadata.dimensions : ''}
+                value={typeof metadata['dimensions'] === 'string' ? metadata['dimensions'] : ''}
                 onChange={(e) => setMetadata({ ...metadata, dimensions: e.target.value })}
                 className="px-3 py-2 bg-neutral-700 text-white border border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="text"
                 placeholder="Camera Model"
-                value={typeof metadata.camera === 'string' ? metadata.camera : ''}
+                value={typeof metadata['camera'] === 'string' ? metadata['camera'] : ''}
                 onChange={(e) => setMetadata({ ...metadata, camera: e.target.value })}
                 className="px-3 py-2 bg-neutral-700 text-white border border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="text"
                 placeholder="ISO"
-                value={typeof metadata.iso === 'string' ? metadata.iso : ''}
+                value={typeof metadata['iso'] === 'string' ? metadata['iso'] : ''}
                 onChange={(e) => setMetadata({ ...metadata, iso: e.target.value })}
                 className="px-3 py-2 bg-neutral-700 text-white border border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="text"
                 placeholder="Aperture (f-stop)"
-                value={typeof metadata.aperture === 'string' ? metadata.aperture : ''}
+                value={typeof metadata['aperture'] === 'string' ? metadata['aperture'] : ''}
                 onChange={(e) => setMetadata({ ...metadata, aperture: e.target.value })}
                 className="px-3 py-2 bg-neutral-700 text-white border border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="text"
                 placeholder="Shutter Speed"
-                value={typeof metadata.shutterSpeed === 'string' ? metadata.shutterSpeed : ''}
+                value={typeof metadata['shutterSpeed'] === 'string' ? metadata['shutterSpeed'] : ''}
                 onChange={(e) => setMetadata({ ...metadata, shutterSpeed: e.target.value })}
                 className="px-3 py-2 bg-neutral-700 text-white border border-neutral-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
