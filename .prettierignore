@@ -1,0 +1,7 @@
+build
+node_modules
+*.config.js
+*.config.ts
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

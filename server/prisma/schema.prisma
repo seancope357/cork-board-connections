@@ -1,0 +1,126 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Board {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       Item[]
+  connections Connection[]
+
+  @@map("boards")
+}
+
+model Item {
+  id              String   @id @default(uuid())
+  boardId         String
+  type            ItemType
+  content         String
+  positionX       Int
+  positionY       Int
+  width           Int?
+  height          Int?
+  zIndex          Int      @default(0)
+  rotation        Float    @default(0)
+  color           String?
+  thumbtackColor  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  board            Board              @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  metadata         ItemMetadata[]
+  tags             ItemTag[]
+  attachments      Attachment[]
+  connectionsFrom  Connection[]       @relation("ConnectionFrom")
+  connectionsTo    Connection[]       @relation("ConnectionTo")
+
+  @@index([boardId])
+  @@index([positionX, positionY])
+  @@map("items")
+}
+
+enum ItemType {
+  note
+  image
+  text
+  shape
+}
+
+model ItemMetadata {
+  id      String @id @default(uuid())
+  itemId  String
+  key     String
+  value   String
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, key])
+  @@index([itemId])
+  @@map("item_metadata")
+}
+
+model Tag {
+  id    String @id @default(uuid())
+  name  String @unique
+  color String?
+
+  items ItemTag[]
+
+  @@map("tags")
+}
+
+model ItemTag {
+  itemId String
+  tagId  String
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([itemId, tagId])
+  @@map("item_tags")
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  itemId     String
+  filename   String
+  filePath   String
+  fileSize   BigInt?
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@map("attachments")
+}
+
+model Connection {
+  id         String   @id @default(uuid())
+  boardId    String
+  fromItemId String
+  toItemId   String
+  style      Json?
+  label      String?
+  createdAt  DateTime @default(now())
+
+  board    Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  fromItem Item  @relation("ConnectionFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
+  toItem   Item  @relation("ConnectionTo", fields: [toItemId], references: [id], onDelete: Cascade)
+
+  @@unique([fromItemId, toItemId])
+  @@index([boardId])
+  @@map("connections")
+}

@@ -1,0 +1,156 @@
+import { useState, useCallback } from 'react';
+import type { BoardItem } from '@/types';
+import { generateId } from '@/utils';
+import {
+  DEFAULT_NOTE_WIDTH,
+  DEFAULT_NOTE_HEIGHT,
+  DEFAULT_NOTE_COLOR,
+  DEFAULT_NOTE_THUMBTACK_COLOR,
+  DEFAULT_IMAGE_WIDTH,
+  DEFAULT_IMAGE_HEIGHT,
+  DEFAULT_IMAGE_THUMBTACK_COLOR,
+} from '@/constants';
+
+const INITIAL_ITEMS: BoardItem[] = [
+  {
+    id: '1',
+    type: 'note',
+    content: 'The beginning...',
+    x: 100,
+    y: 100,
+    width: DEFAULT_NOTE_WIDTH,
+    height: DEFAULT_NOTE_HEIGHT,
+    color: DEFAULT_NOTE_COLOR,
+    thumbtackColor: DEFAULT_NOTE_THUMBTACK_COLOR,
+  },
+  {
+    id: '2',
+    type: 'note',
+    content: 'This connects to everything!',
+    x: 400,
+    y: 150,
+    width: DEFAULT_NOTE_WIDTH,
+    height: DEFAULT_NOTE_HEIGHT,
+    color: DEFAULT_NOTE_COLOR,
+    thumbtackColor: DEFAULT_NOTE_THUMBTACK_COLOR,
+  },
+  {
+    id: '3',
+    type: 'note',
+    content: "THEY DON'T WANT YOU TO KNOW",
+    x: 700,
+    y: 200,
+    width: DEFAULT_NOTE_WIDTH,
+    height: DEFAULT_NOTE_HEIGHT,
+    color: DEFAULT_NOTE_COLOR,
+    thumbtackColor: DEFAULT_NOTE_THUMBTACK_COLOR,
+  },
+];
+
+export function useBoard() {
+  const [items, setItems] = useState<BoardItem[]>(INITIAL_ITEMS);
+  const [editingItem, setEditingItem] = useState<BoardItem | null>(null);
+
+  const addNote = useCallback(() => {
+    const newNote: BoardItem = {
+      id: generateId(),
+      type: 'note',
+      content: 'New clue...',
+      x: Math.random() * 600 + 100,
+      y: Math.random() * 400 + 100,
+      width: DEFAULT_NOTE_WIDTH,
+      height: DEFAULT_NOTE_HEIGHT,
+      color: DEFAULT_NOTE_COLOR,
+      thumbtackColor: DEFAULT_NOTE_THUMBTACK_COLOR,
+      files: [],
+      metadata: {},
+    };
+    setItems((prev) => [...prev, newNote]);
+  }, []);
+
+  const addImage = useCallback(() => {
+    const newImage: BoardItem = {
+      id: generateId(),
+      type: 'image',
+      content: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=300&h=200&fit=crop',
+      x: Math.random() * 600 + 100,
+      y: Math.random() * 400 + 100,
+      width: DEFAULT_IMAGE_WIDTH,
+      height: DEFAULT_IMAGE_HEIGHT,
+      color: 'white',
+      thumbtackColor: DEFAULT_IMAGE_THUMBTACK_COLOR,
+      files: [],
+      metadata: {
+        title: 'Evidence Photo',
+        description: 'Suspicious activity',
+        tags: ['evidence', 'important'],
+        date: new Date().toISOString().split('T')[0],
+        location: 'Unknown',
+      },
+    };
+    setItems((prev) => [...prev, newImage]);
+  }, []);
+
+  const updateItemPosition = useCallback((id: string, x: number, y: number) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, x, y } : item)));
+  }, []);
+
+  const updateItemSize = useCallback((id: string, width: number, height: number) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, width, height } : item)));
+  }, []);
+
+  const updateItemContent = useCallback((id: string, content: string) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, content } : item)));
+  }, []);
+
+  const updateItem = useCallback((id: string, updates: Partial<BoardItem>) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
+  }, []);
+
+  const deleteItem = useCallback((id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const openItemEditor = useCallback(
+    (id: string) => {
+      const item = items.find((i) => i.id === id);
+      if (item) {
+        setEditingItem(item);
+      }
+    },
+    [items]
+  );
+
+  const closeItemEditor = useCallback(() => {
+    setEditingItem(null);
+  }, []);
+
+  const getItemCenter = useCallback(
+    (id: string) => {
+      const item = items.find((i) => i.id === id);
+      if (!item) return { x: 0, y: 0 };
+
+      const defaultWidth = item.type === 'note' ? DEFAULT_NOTE_WIDTH : DEFAULT_IMAGE_WIDTH;
+      return {
+        x: item.x + (item.width || defaultWidth) / 2,
+        y: item.y - 3, // Thumbtack offset
+      };
+    },
+    [items]
+  );
+
+  return {
+    items,
+    editingItem,
+    addNote,
+    addImage,
+    updateItemPosition,
+    updateItemSize,
+    updateItemContent,
+    updateItem,
+    deleteItem,
+    openItemEditor,
+    closeItemEditor,
+    getItemCenter,
+  };
+}
