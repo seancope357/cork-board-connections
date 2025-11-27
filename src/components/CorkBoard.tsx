@@ -1,23 +1,54 @@
-import { useRef, useCallback, useState } from 'react';
-import { Plus, StickyNote, Image as ImageIcon } from 'lucide-react';
+import { useRef, useCallback, useState, useEffect } from 'react';
+import { Plus, StickyNote, Image as ImageIcon, Loader2, Cloud } from 'lucide-react';
 import { DraggableNote } from './DraggableNote';
 import { DraggableImage } from './DraggableImage';
 import { ConnectionLine } from './ConnectionLine';
 import { NoteModal } from './NoteModal';
 import { ImageModal } from './ImageModal';
-import { useBoard, useConnections } from '@/hooks';
+import { useBoardWithSync } from '@/hooks/useBoardWithSync';
+import { useConnectionsWithSync } from '@/hooks/useConnectionsWithSync';
 import { useNotification } from '@/contexts/NotificationContext';
 import { DEFAULT_NOTE_WIDTH, DEFAULT_IMAGE_WIDTH } from '@/constants';
+import type { BoardItem } from '@/types';
+
+// Default board ID - in a real app, this would come from URL params or user selection
+const DEFAULT_BOARD_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
 
 export function CorkBoard() {
   const boardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [boardId, setBoardId] = useState<string | null>(null);
   const notification = useNotification();
 
-  // Use custom hooks for state management
+  // Initialize board ID from Supabase or use default
+  useEffect(() => {
+    async function initBoard() {
+      try {
+        const { supabase } = await import('@/lib/supabase');
+
+        // Get the first board or create default
+        const { data: boards } = await supabase.from('boards').select('id').limit(1);
+
+        if (boards && boards.length > 0) {
+          setBoardId(boards[0]?.id || null);
+        } else {
+          setBoardId(DEFAULT_BOARD_ID);
+        }
+      } catch (error) {
+        console.error('Error initializing board:', error);
+        setBoardId(DEFAULT_BOARD_ID);
+      }
+    }
+
+    void initBoard();
+  }, []);
+
+  // Use custom hooks with Supabase sync
   const {
     items,
     editingItem,
+    isLoading: itemsLoading,
+    isSyncing,
     addNote,
     addImage,
     updateItemPosition,
@@ -28,16 +59,19 @@ export function CorkBoard() {
     openItemEditor,
     closeItemEditor,
     getItemCenter,
-  } = useBoard();
+  } = useBoardWithSync(boardId || DEFAULT_BOARD_ID);
 
   const {
     connections,
     connectingFrom,
+    isLoading: connectionsLoading,
     deleteConnection,
     deleteConnectionsByItem,
     startConnection,
     cancelConnection,
-  } = useConnections();
+  } = useConnectionsWithSync(boardId || DEFAULT_BOARD_ID);
+
+  const isLoading = itemsLoading || connectionsLoading;
 
   // Delete item and its connections
   const handleDeleteItem = useCallback(
@@ -74,7 +108,7 @@ export function CorkBoard() {
 
   // Handle save from modals
   const handleSaveItem = useCallback(
-    (updates: Partial<typeof editingItem>) => {
+    (updates: Partial<BoardItem>) => {
       if (editingItem) {
         updateItem(editingItem.id, updates);
         closeItemEditor();
@@ -82,6 +116,18 @@ export function CorkBoard() {
     },
     [editingItem, updateItem, closeItemEditor]
   );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-neutral-900">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-yellow-500 animate-spin" />
+          <p className="text-neutral-400 text-lg">Loading your cork board...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -117,14 +163,32 @@ export function CorkBoard() {
           </>
         )}
 
-        {!connectingFrom && connections.length > 0 && (
-          <div className="ml-auto flex items-center gap-2 text-neutral-400">
-            <span className="h-0.5 w-8 bg-red-500"></span>
-            <span>
-              {connections.length} connection{connections.length !== 1 ? 's' : ''}
-            </span>
+        {/* Sync Status Indicator */}
+        <div className="ml-auto flex items-center gap-4">
+          {!connectingFrom && connections.length > 0 && (
+            <div className="flex items-center gap-2 text-neutral-400">
+              <span className="h-0.5 w-8 bg-red-500"></span>
+              <span>
+                {connections.length} connection{connections.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )}
+
+          {/* Cloud Sync Indicator */}
+          <div className="flex items-center gap-2 text-neutral-400 text-sm">
+            {isSyncing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                <span className="text-blue-500">Syncing...</span>
+              </>
+            ) : (
+              <>
+                <Cloud className="w-4 h-4 text-green-500" />
+                <span className="text-green-500">Saved</span>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Cork Board */}

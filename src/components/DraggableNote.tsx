@@ -53,7 +53,6 @@ export function DraggableNote({
   const hasTags = metadata?.tags && metadata.tags.length > 0;
   const hasTitle = metadata?.title && metadata.title.trim() !== '';
   const hasDate = metadata?.date && metadata.date.trim() !== '';
-  const hasMetadata = hasTitle || hasTags || hasDate || Object.keys(metadata || {}).length > 0;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).tagName === 'BUTTON') {
@@ -144,7 +143,7 @@ export function DraggableNote({
       purple: { bg: 'bg-purple-200', border: 'border-purple-300' },
       orange: { bg: 'bg-orange-200', border: 'border-orange-300' },
     };
-    return colors[colorName] || colors.yellow;
+    return colors[colorName] || colors['yellow']!;
   };
 
   const getThumbtackColorClass = (colorName: string) => {
@@ -156,7 +155,7 @@ export function DraggableNote({
       purple: 'bg-purple-600 border-purple-700',
       black: 'bg-black border-neutral-800',
     };
-    return colors[colorName] || colors.red;
+    return colors[colorName] || colors['red']!;
   };
 
   const noteColors = getColorClasses(color);

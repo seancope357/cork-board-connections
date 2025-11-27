@@ -26,9 +26,9 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       console.error('Error caught by boundary:', error, errorInfo);
     }
 
@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
@@ -77,7 +77,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <p className="text-red-400 font-mono text-sm mb-2">
                   {this.state.error.toString()}
                 </p>
-                {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
+                {process.env['NODE_ENV'] === 'development' && this.state.errorInfo && (
                   <details className="mt-4">
                     <summary className="text-neutral-400 cursor-pointer hover:text-white">
                       Stack trace

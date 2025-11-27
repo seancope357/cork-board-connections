@@ -7,7 +7,7 @@ const INITIAL_CONNECTIONS: Connection[] = [
   { id: 'c2', from: '2', to: '3' },
 ];
 
-export function useConnections(onItemDelete?: (itemId: string) => void) {
+export function useConnections(_onItemDelete?: (itemId: string) => void) {
   const [connections, setConnections] = useState<Connection[]>(INITIAL_CONNECTIONS);
   const [connectingFrom, setConnectingFrom] = useState<string | null>(null);
 

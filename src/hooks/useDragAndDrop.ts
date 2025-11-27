@@ -83,6 +83,7 @@ export function useDragAndDrop(
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
+    return undefined;
   }, [dragState.isDragging, handleMouseMove, handleMouseUp]);
 
   return {
