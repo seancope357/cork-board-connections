@@ -16,15 +16,16 @@ export const errorHandler = (
   _req: Request,
   res: Response,
   _next: NextFunction
-) => {
+): void => {
   // Log error for debugging
   console.error('Error:', err);
 
   // Handle known errors
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
+    res.status(err.statusCode).json({
       error: err.message,
     });
+    return;
   }
 
   // Default error response
