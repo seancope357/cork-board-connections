@@ -74,7 +74,7 @@ export function CorkBoard() {
 
   // Handle save from modals
   const handleSaveItem = useCallback(
-    (updates: Partial<typeof editingItem>) => {
+    (updates: Partial<BoardItem>) => {
       if (editingItem) {
         updateItem(editingItem.id, updates);
         closeItemEditor();
