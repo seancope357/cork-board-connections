@@ -5,7 +5,8 @@
 Your Cork Board application has been professionally transformed with:
 - ✅ Production-ready frontend (React + TypeScript + Vite)
 - ✅ Secure backend API (Express + TypeScript)
-- ✅ PostgreSQL database (Prisma ORM)
+- ✅ Supabase PostgreSQL database with authentication
+- ✅ Row Level Security (RLS) for data protection
 - ✅ Comprehensive validation and error handling
 - ✅ Professional code quality and testing setup
 
@@ -15,45 +16,63 @@ Your Cork Board application has been professionally transformed with:
 
 ### Prerequisites
 - Node.js 20+
-- PostgreSQL 14+
 - npm
+- Supabase account (free tier is fine)
 
-### 1. Install Frontend Dependencies
+### 1. Set Up Supabase
 
+**Follow the complete guide in `SUPABASE_SETUP.md`** which covers:
+1. Creating a Supabase project
+2. Running the database migration
+3. Getting your API keys
+4. (Optional) Enabling OAuth providers
+
+This should take about 5-10 minutes.
+
+### 2. Configure Environment Variables
+
+**Frontend (.env in root directory):**
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your Supabase credentials
+VITE_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_API_URL=http://localhost:3001
+```
+
+**Backend (server/.env):**
+```bash
+# Navigate to server directory
+cd server
+
+# Copy the example file
+cp .env.example .env
+
+# Edit .env with your Supabase credentials
+SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+```
+
+⚠️ **Important**: Use the **service_role** key for backend, **anon** key for frontend!
+
+### 3. Install Dependencies
+
+**Frontend:**
 ```bash
 # From project root
 npm install
 ```
 
-### 2. Set Up Backend
-
-```bash
-# Navigate to server directory
-cd server
-
-# Install dependencies
-npm install
-
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your database credentials
-# DATABASE_URL="postgresql://user:password@localhost:5432/corkboard?schema=public"
-```
-
-### 3. Set Up Database
-
+**Backend:**
 ```bash
 # From server directory
-
-# Generate Prisma Client
-npm run db:generate
-
-# Push schema to database (development)
-npm run db:push
-
-# Or run migrations (production-like)
-npm run db:migrate
+cd server
+npm install
 ```
 
 ### 4. Start Development Servers
@@ -74,9 +93,13 @@ npm run dev
 
 ### 5. Verify Everything Works
 
-- Frontend: http://localhost:3000
-- Backend Health: http://localhost:3001/api/health
-- Database: `cd server && npm run db:studio`
+1. **Open the app**: http://localhost:3000
+2. **Sign up**: Click "Sign In" button → Create an account
+3. **Create a board**: Add notes and images to the board
+4. **Verify data**: Check Supabase dashboard → Table Editor to see your data
+5. **Test authentication**: Sign out and sign back in
+
+✅ If you can sign in and create items, everything is working!
 
 ---
 
@@ -203,11 +226,20 @@ RATE_LIMIT_MAX_REQUESTS=100
 
 ## Key Features
 
+### Authentication
+- ✅ Email/password authentication
+- ✅ OAuth providers (Google, GitHub)
+- ✅ JWT token management
+- ✅ User session persistence
+- ✅ Secure password reset
+- ✅ Email verification
+
 ### Frontend
 - ✅ Drag and drop notes and images
 - ✅ Connect items with red string lines
 - ✅ Rich metadata for all items
 - ✅ File attachments
+- ✅ User authentication UI
 - ✅ Error boundaries
 - ✅ Toast notifications
 - ✅ Input validation
@@ -217,15 +249,25 @@ RATE_LIMIT_MAX_REQUESTS=100
 
 ### Backend
 - ✅ RESTful API
-- ✅ PostgreSQL database
+- ✅ Supabase PostgreSQL database
+- ✅ Row Level Security (RLS)
 - ✅ Type-safe with TypeScript
 - ✅ Input validation (Zod)
+- ✅ JWT authentication middleware
 - ✅ Rate limiting
 - ✅ CORS protection
 - ✅ Security headers (Helmet)
 - ✅ Error handling
 - ✅ Soft deletes
 - ✅ Flexible metadata system
+
+### Security
+- ✅ Row Level Security policies
+- ✅ User data isolation
+- ✅ JWT token verification
+- ✅ HTTPS enforcement (in production)
+- ✅ Rate limiting
+- ✅ Input sanitization
 
 ---
 

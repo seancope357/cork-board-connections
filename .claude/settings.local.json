@@ -3,7 +3,8 @@
     "allow": [
       "Bash(find:*)",
       "Bash(chmod:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
