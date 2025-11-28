@@ -1,17 +1,16 @@
 import { useRef, useCallback, useState } from 'react';
-import { Plus, StickyNote, Image as ImageIcon } from 'lucide-react';
+import { Plus, StickyNote, Image as ImageIcon, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { DraggableNote } from './DraggableNote';
 import { DraggableImage } from './DraggableImage';
 import { ConnectionLine } from './ConnectionLine';
 import { NoteModal } from './NoteModal';
 import { ImageModal } from './ImageModal';
-import { useBoard, useConnections } from '@/hooks';
+import { useBoard, useConnections, useZoomPan } from '@/hooks';
 import { useNotification } from '@/contexts/NotificationContext';
 import { DEFAULT_NOTE_WIDTH, DEFAULT_IMAGE_WIDTH } from '@/constants';
 import type { BoardItem } from '@/types';
 
 export function CorkBoard() {
-  const boardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const notification = useNotification();
 
@@ -40,6 +39,20 @@ export function CorkBoard() {
     cancelConnection,
   } = useConnections();
 
+  const {
+    zoom,
+    pan,
+    containerRef,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+    screenToCanvas,
+  } = useZoomPan({
+    minZoom: 0.1,
+    maxZoom: 5,
+    zoomSpeed: 0.001,
+  });
+
   // Delete item and its connections
   const handleDeleteItem = useCallback(
     (id: string) => {
@@ -63,15 +76,18 @@ export function CorkBoard() {
   }, [addImage, notification]);
 
   // Handle mouse move for temporary connection line
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (boardRef.current) {
-      const rect = boardRef.current.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  }, []);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const screenX = e.clientX - rect.left;
+        const screenY = e.clientY - rect.top;
+        const canvasPos = screenToCanvas(screenX, screenY);
+        setMousePos(canvasPos);
+      }
+    },
+    [containerRef, screenToCanvas]
+  );
 
   // Handle save from modals
   const handleSaveItem = useCallback(
@@ -126,12 +142,40 @@ export function CorkBoard() {
             </span>
           </div>
         )}
+
+        {/* Zoom Controls */}
+        <div className={`flex items-center gap-2 ${!connectingFrom && connections.length > 0 ? '' : 'ml-auto'}`}>
+          <button
+            onClick={zoomIn}
+            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
+            title="Zoom In"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={zoomOut}
+            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <button
+            onClick={resetZoom}
+            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
+            title="Reset Zoom"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+          <span className="text-neutral-400 text-sm min-w-[4rem] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+        </div>
       </div>
 
       {/* Cork Board */}
       <div
-        ref={boardRef}
-        className="flex-1 relative overflow-auto"
+        ref={containerRef}
+        className="flex-1 relative overflow-hidden"
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 30%, rgba(139, 99, 63, 0.1) 0%, transparent 50%),
@@ -139,11 +183,23 @@ export function CorkBoard() {
           `,
           backgroundColor: '#a67c52',
           backgroundSize: '100% 100%',
+          cursor: 'grab',
         }}
         onMouseMove={handleMouseMove}
       >
-        {/* SVG Layer for connections */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+        {/* Transform wrapper for zoom/pan */}
+        <div
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: '0 0',
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            inset: 0,
+          }}
+        >
+          {/* SVG Layer for connections */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
           {connections.map((conn) => {
             const from = getItemCenter(conn.from);
             const to = getItemCenter(conn.to);
@@ -208,6 +264,9 @@ export function CorkBoard() {
                 onEdit={openItemEditor}
                 isConnecting={connectingFrom === item.id}
                 canConnect={connectingFrom !== null && connectingFrom !== item.id}
+                containerRef={containerRef}
+                zoom={zoom}
+                pan={pan}
               />
             ) : (
               <DraggableImage
@@ -228,9 +287,13 @@ export function CorkBoard() {
                 onEdit={openItemEditor}
                 isConnecting={connectingFrom === item.id}
                 canConnect={connectingFrom !== null && connectingFrom !== item.id}
+                containerRef={containerRef}
+                zoom={zoom}
+                pan={pan}
               />
             )
           )}
+        </div>
         </div>
       </div>
 

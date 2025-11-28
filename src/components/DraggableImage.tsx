@@ -19,6 +19,9 @@ interface DraggableImageProps {
   onEdit: (id: string) => void;
   isConnecting: boolean;
   canConnect: boolean;
+  containerRef?: React.RefObject<HTMLElement>;
+  zoom?: number;
+  pan?: { x: number; y: number };
 }
 
 export function DraggableImage({
@@ -38,6 +41,9 @@ export function DraggableImage({
   onEdit,
   isConnecting,
   canConnect,
+  containerRef,
+  zoom = 1,
+  pan = { x: 0, y: 0 },
 }: DraggableImageProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -51,41 +57,59 @@ export function DraggableImage({
   const hasCamera = metadata?.camera && metadata.camera.trim() !== '';
   const hasMetadata = Object.keys(metadata || {}).length > 0;
 
+  // Convert screen coordinates to canvas coordinates
+  const screenToCanvas = (screenX: number, screenY: number) => {
+    if (!containerRef?.current) {
+      return { x: screenX, y: screenY };
+    }
+    const rect = containerRef.current.getBoundingClientRect();
+    const relativeX = screenX - rect.left;
+    const relativeY = screenY - rect.top;
+    return {
+      x: (relativeX - pan.x) / zoom,
+      y: (relativeY - pan.y) / zoom,
+    };
+  };
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).tagName === 'BUTTON') {
       return;
     }
-    
+
     // Check for double click to open editor
     if (e.detail === 2) {
       onEdit(id);
       return;
     }
-    
+
+    const canvasPos = screenToCanvas(e.clientX, e.clientY);
     setIsDragging(true);
     setOffset({
-      x: e.clientX - x,
-      y: e.clientY - y,
+      x: canvasPos.x - x,
+      y: canvasPos.y - y,
     });
   };
 
   const handleResizeStart = (e: React.MouseEvent, direction: string) => {
     e.stopPropagation();
+    const canvasPos = screenToCanvas(e.clientX, e.clientY);
     setIsResizing(true);
     setResizeDirection(direction);
     setOffset({
-      x: e.clientX,
-      y: e.clientY,
+      x: canvasPos.x,
+      y: canvasPos.y,
     });
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
-        onMove(id, e.clientX - offset.x, e.clientY - offset.y);
+        const canvasPos = screenToCanvas(e.clientX, e.clientY);
+        onMove(id, canvasPos.x - offset.x, canvasPos.y - offset.y);
       } else if (isResizing) {
-        const deltaX = e.clientX - offset.x;
-        const deltaY = e.clientY - offset.y;
+        const canvasPos = screenToCanvas(e.clientX, e.clientY);
+        const deltaX = canvasPos.x - offset.x;
+        const deltaY = canvasPos.y - offset.y;
         
         let newWidth = width;
         let newHeight = height;
@@ -108,9 +132,9 @@ export function DraggableImage({
             onMove(id, x, y + deltaY);
           }
         }
-        
+
         onResize(id, newWidth, newHeight);
-        setOffset({ x: e.clientX, y: e.clientY });
+        setOffset({ x: canvasPos.x, y: canvasPos.y });
       }
     };
 

@@ -10,6 +10,9 @@ interface UseDragAndDropOptions {
     maxX?: number;
     maxY?: number;
   };
+  containerRef?: React.RefObject<HTMLElement>;
+  zoom?: number;
+  pan?: { x: number; y: number };
 }
 
 // Default bounds - prevent items from going off-screen
@@ -25,7 +28,13 @@ export function useDragAndDrop(
   initialY: number,
   options: UseDragAndDropOptions = {}
 ) {
-  const { onDragEnd, bounds = DEFAULT_BOUNDS } = options;
+  const {
+    onDragEnd,
+    bounds = DEFAULT_BOUNDS,
+    containerRef,
+    zoom = 1,
+    pan = { x: 0, y: 0 },
+  } = options;
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
     offset: { x: 0, y: 0 },
@@ -33,27 +42,46 @@ export function useDragAndDrop(
   const [position, setPosition] = useState({ x: initialX, y: initialY });
   const dragStartPos = useRef({ x: initialX, y: initialY });
 
+  // Convert screen coordinates to canvas coordinates
+  const screenToCanvas = useCallback(
+    (screenX: number, screenY: number) => {
+      if (!containerRef?.current) {
+        return { x: screenX, y: screenY };
+      }
+      const rect = containerRef.current.getBoundingClientRect();
+      const relativeX = screenX - rect.left;
+      const relativeY = screenY - rect.top;
+      return {
+        x: (relativeX - pan.x) / zoom,
+        y: (relativeY - pan.y) / zoom,
+      };
+    },
+    [containerRef, zoom, pan]
+  );
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       dragStartPos.current = { x: position.x, y: position.y };
+      const canvasPos = screenToCanvas(e.clientX, e.clientY);
       setDragState({
         isDragging: true,
         offset: {
-          x: e.clientX - position.x,
-          y: e.clientY - position.y,
+          x: canvasPos.x - position.x,
+          y: canvasPos.y - position.y,
         },
       });
     },
-    [position]
+    [position, screenToCanvas]
   );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (!dragState.isDragging) return;
 
-      let newX = e.clientX - dragState.offset.x;
-      let newY = e.clientY - dragState.offset.y;
+      const canvasPos = screenToCanvas(e.clientX, e.clientY);
+      let newX = canvasPos.x - dragState.offset.x;
+      let newY = canvasPos.y - dragState.offset.y;
 
       // Apply bounds with clamp utility
       newX = clamp(newX, bounds.minX ?? 0, bounds.maxX ?? Infinity);
@@ -61,7 +89,7 @@ export function useDragAndDrop(
 
       setPosition({ x: newX, y: newY });
     },
-    [dragState, bounds]
+    [dragState, bounds, screenToCanvas]
   );
 
   const handleMouseUp = useCallback(() => {
