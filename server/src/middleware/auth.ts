@@ -14,7 +14,11 @@ declare global {
   }
 }
 
-export const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticateUser = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -40,13 +44,19 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     };
 
     next();
+    return;
   } catch (error) {
     next(error);
+    return;
   }
 };
 
 // Optional auth - doesn't fail if no token, but attaches user if valid
-export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalAuth = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -65,8 +75,10 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     }
 
     next();
+    return;
   } catch (error) {
     // Silently continue without user
     next();
+    return;
   }
 };
