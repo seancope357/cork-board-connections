@@ -37,63 +37,96 @@ export function ConnectionLine({ id, x1, y1, x2, y2, onDelete }: ConnectionLineP
       <path
         d={pathD}
         stroke="transparent"
-        strokeWidth="20"
+        strokeWidth="24"
         fill="none"
         className="pointer-events-auto cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       />
 
-      {/* Shadow/depth for the string */}
+      {/* Outer glow effect */}
       {isHovered && (
         <path
           d={pathD}
-          stroke="#991b1b"
-          strokeWidth="5"
+          stroke="#f43f5e"
+          strokeWidth="8"
           fill="none"
-          opacity="0.3"
+          opacity="0.2"
           className="pointer-events-none"
+          style={{ filter: 'blur(4px)' }}
         />
       )}
 
-      {/* Visible red string with organic look */}
+      {/* Shadow layer */}
       <path
         d={pathD}
-        stroke={isHovered ? '#dc2626' : '#ef4444'}
-        strokeWidth={isHovered ? '3.5' : '2.5'}
+        stroke="#94a3b8"
+        strokeWidth={isHovered ? '4' : '3'}
         fill="none"
-        opacity={isHovered ? '1' : '0.85'}
+        opacity="0.15"
         strokeLinecap="round"
         className="pointer-events-none transition-all"
+        transform="translate(1, 2)"
+      />
+
+      {/* Modern gradient connection line */}
+      <defs>
+        <linearGradient id={`gradient-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={isHovered ? '#f43f5e' : '#ec4899'} />
+          <stop offset="100%" stopColor={isHovered ? '#ec4899' : '#f43f5e'} />
+        </linearGradient>
+      </defs>
+
+      <path
+        d={pathD}
+        stroke={`url(#gradient-${id})`}
+        strokeWidth={isHovered ? '4' : '3'}
+        fill="none"
+        opacity={isHovered ? '1' : '0.9'}
+        strokeLinecap="round"
+        className="pointer-events-none transition-all duration-200"
         style={{
-          filter: isHovered ? 'drop-shadow(0 0 4px rgba(239, 68, 68, 0.6))' : 'none',
+          filter: isHovered ? 'drop-shadow(0 0 8px rgba(244, 63, 94, 0.5))' : 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
         }}
       />
 
-      {/* Small pins/tacks at connection points when hovered */}
+      {/* Connection point indicators */}
       {isHovered && (
         <>
-          <circle cx={x1} cy={y1} r="4" fill="#dc2626" opacity="0.8" className="pointer-events-none" />
-          <circle cx={x2} cy={y2} r="4" fill="#dc2626" opacity="0.8" className="pointer-events-none" />
+          <circle cx={x1} cy={y1} r="6" fill="#f43f5e" opacity="0.3" className="pointer-events-none animate-pulse" />
+          <circle cx={x1} cy={y1} r="4" fill="#f43f5e" className="pointer-events-none" />
+          <circle cx={x2} cy={y2} r="6" fill="#f43f5e" opacity="0.3" className="pointer-events-none animate-pulse" />
+          <circle cx={x2} cy={y2} r="4" fill="#f43f5e" className="pointer-events-none" />
         </>
       )}
 
-      {/* Delete button on hover */}
+      {/* Modern delete button */}
       {isHovered && (
         <g className="pointer-events-auto cursor-pointer" onClick={onDelete}>
+          {/* Button shadow */}
+          <circle
+            cx={midX}
+            cy={midY + 1}
+            r="16"
+            fill="#64748b"
+            opacity="0.2"
+            className="pointer-events-none"
+          />
+          {/* Button background */}
           <circle
             cx={midX}
             cy={midY}
-            r="14"
+            r="16"
             fill="white"
-            stroke="#dc2626"
-            strokeWidth="2"
             className="transition-all hover:scale-110"
+            style={{ filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))' }}
           />
-          <circle cx={midX} cy={midY} r="14" fill="white" opacity="0.9" />
-          <foreignObject x={midX - 10} y={midY - 10} width="20" height="20">
+          {/* Icon container */}
+          <foreignObject x={midX - 12} y={midY - 12} width="24" height="24">
             <div className="flex items-center justify-center w-full h-full">
-              <X className="w-4 h-4 text-red-600" />
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center transition-transform hover:scale-110">
+                <X className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+              </div>
             </div>
           </foreignObject>
         </g>

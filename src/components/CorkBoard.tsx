@@ -101,88 +101,103 @@ export function CorkBoard() {
   );
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Toolbar */}
-      <div className="bg-neutral-800 border-b border-neutral-700 p-4 flex gap-3 items-center">
-        <button
-          onClick={handleAddNote}
-          className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded transition-colors"
-        >
-          <StickyNote className="w-4 h-4" />
-          Add Note
-        </button>
-        <button
-          onClick={handleAddImage}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-        >
-          <ImageIcon className="w-4 h-4" />
-          Add Image
-        </button>
+    <div className="w-full h-full flex flex-col bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Modern Toolbar */}
+      <div className="bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div className="px-6 py-3 flex gap-3 items-center">
+          {/* Primary Actions Group */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleAddNote}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+            >
+              <StickyNote className="w-4 h-4" />
+              <span>Add Note</span>
+            </button>
+            <button
+              onClick={handleAddImage}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span>Add Image</span>
+            </button>
+          </div>
 
-        {connectingFrom && (
-          <>
-            <div className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded animate-pulse">
-              <Plus className="w-4 h-4" />
-              Click another item to connect
+          {/* Connection Status */}
+          {connectingFrom && (
+            <div className="flex items-center gap-2 ml-2">
+              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-lg font-medium shadow-md animate-pulse">
+                <Plus className="w-4 h-4" />
+                <span>Click another item to connect</span>
+              </div>
+              <button
+                onClick={cancelConnection}
+                className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-all duration-200"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
+          {/* Connection Counter */}
+          {!connectingFrom && connections.length > 0 && (
+            <div className="ml-auto flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></div>
+                <span className="text-slate-700 font-medium text-sm">
+                  {connections.length} connection{connections.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Zoom Controls */}
+          <div className={`flex items-center gap-2 ${!connectingFrom && connections.length > 0 ? '' : 'ml-auto'}`}>
+            <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+              <button
+                onClick={zoomOut}
+                className="p-2 hover:bg-slate-200 text-slate-700 transition-colors"
+                title="Zoom Out (Scroll Down)"
+              >
+                <ZoomOut className="w-4 h-4" />
+              </button>
+              <div className="px-3 py-2 bg-white border-x border-slate-200 min-w-[4rem] text-center">
+                <span className="text-slate-700 font-semibold text-sm">
+                  {Math.round(zoom * 100)}%
+                </span>
+              </div>
+              <button
+                onClick={zoomIn}
+                className="p-2 hover:bg-slate-200 text-slate-700 transition-colors"
+                title="Zoom In (Scroll Up)"
+              >
+                <ZoomIn className="w-4 h-4" />
+              </button>
             </div>
             <button
-              onClick={cancelConnection}
-              className="px-4 py-2 bg-neutral-600 hover:bg-neutral-500 text-white rounded transition-colors"
+              onClick={resetZoom}
+              className="p-2 bg-slate-50 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-200 shadow-sm transition-colors"
+              title="Reset Zoom (1:1)"
             >
-              Cancel
+              <Maximize2 className="w-4 h-4" />
             </button>
-          </>
-        )}
-
-        {!connectingFrom && connections.length > 0 && (
-          <div className="ml-auto flex items-center gap-2 text-neutral-400">
-            <span className="h-0.5 w-8 bg-red-500"></span>
-            <span>
-              {connections.length} connection{connections.length !== 1 ? 's' : ''}
-            </span>
           </div>
-        )}
-
-        {/* Zoom Controls */}
-        <div className={`flex items-center gap-2 ${!connectingFrom && connections.length > 0 ? '' : 'ml-auto'}`}>
-          <button
-            onClick={zoomIn}
-            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
-            title="Zoom In"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
-          <button
-            onClick={zoomOut}
-            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
-            title="Zoom Out"
-          >
-            <ZoomOut className="w-4 h-4" />
-          </button>
-          <button
-            onClick={resetZoom}
-            className="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
-            title="Reset Zoom"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
-          <span className="text-neutral-400 text-sm min-w-[4rem] text-center">
-            {Math.round(zoom * 100)}%
-          </span>
         </div>
       </div>
 
-      {/* Cork Board */}
+      {/* Modern Canvas */}
       <div
         ref={containerRef}
         className="flex-1 relative overflow-hidden"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(139, 99, 63, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(160, 115, 74, 0.1) 0%, transparent 50%)
+            radial-gradient(circle at 25% 25%, rgba(148, 163, 184, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(100, 116, 139, 0.05) 0%, transparent 50%),
+            repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(148, 163, 184, 0.03) 49px, rgba(148, 163, 184, 0.03) 50px),
+            repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(148, 163, 184, 0.03) 49px, rgba(148, 163, 184, 0.03) 50px)
           `,
-          backgroundColor: '#a67c52',
-          backgroundSize: '100% 100%',
+          backgroundColor: '#f8fafc',
+          backgroundSize: '100% 100%, 100% 100%, 50px 50px, 50px 50px',
           cursor: 'grab',
         }}
         onMouseMove={handleMouseMove}

@@ -157,12 +157,12 @@ export function DraggableImage({
 
   const getThumbtackColorClass = (colorName: string) => {
     const colors: Record<string, string> = {
-      red: 'bg-red-600 border-red-700',
-      blue: 'bg-blue-600 border-blue-700',
-      green: 'bg-green-600 border-green-700',
-      yellow: 'bg-yellow-500 border-yellow-600',
-      purple: 'bg-purple-600 border-purple-700',
-      black: 'bg-black border-neutral-800',
+      red: 'bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/30',
+      blue: 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/30',
+      green: 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-green-500/30',
+      yellow: 'bg-gradient-to-br from-yellow-400 to-amber-500 shadow-yellow-500/30',
+      purple: 'bg-gradient-to-br from-purple-500 to-violet-600 shadow-purple-500/30',
+      black: 'bg-gradient-to-br from-slate-700 to-slate-900 shadow-slate-700/30',
     };
     return colors[colorName] || colors.blue;
   };
@@ -176,49 +176,51 @@ export function DraggableImage({
       style={{
         left: x,
         top: y,
-        transform: isDragging ? 'rotate(1deg) scale(1.05)' : 'rotate(2deg)',
-        transition: isDragging || isResizing ? 'none' : 'transform 0.1s',
+        transform: isDragging ? 'rotate(0.5deg) scale(1.02)' : 'rotate(1deg)',
+        transition: isDragging || isResizing ? 'none' : 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
       onMouseDown={handleMouseDown}
     >
-      {/* Push Pin */}
-      <div className={`absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full shadow-lg z-10 border-2 ${thumbtackClass}`} />
-      
-      {/* Image with polaroid effect */}
-      <div className={`bg-white shadow-xl p-3 pb-12 transition-all relative ${
-        isConnecting ? 'ring-4 ring-red-500 ring-offset-2 shadow-2xl shadow-red-500/50' : ''
+      {/* Modern Push Pin */}
+      <div className={`absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full shadow-xl z-10 ${thumbtackClass} flex items-center justify-center`}>
+        <div className="w-2 h-2 bg-white/30 rounded-full"></div>
+      </div>
+
+      {/* Modern Photo Card */}
+      <div className={`bg-white shadow-2xl p-4 pb-14 rounded-2xl transition-all relative ${
+        isConnecting ? 'ring-4 ring-rose-500 ring-offset-4 shadow-2xl shadow-rose-500/30 scale-105' : ''
       } ${
-        canConnect ? 'ring-4 ring-green-400 ring-offset-2 animate-pulse cursor-pointer' : ''
+        canConnect ? 'ring-4 ring-emerald-400 ring-offset-4 animate-pulse cursor-pointer scale-105' : ''
       }`}>
         <ImageWithFallback
           src={imageUrl}
           alt="Evidence"
-          className="object-cover"
+          className="object-cover rounded-lg"
           style={{ width: width, height: height }}
         />
-        
-        {/* Professional Indicators */}
-        <div className="absolute bottom-2 left-2 flex gap-1 flex-wrap max-w-full">
+
+        {/* Modern Indicators */}
+        <div className="absolute bottom-3 left-3 flex gap-1.5 flex-wrap max-w-full">
           {hasFiles && (
-            <div className="bg-blue-600 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-1" title={`${files.length} file(s) attached`}>
-              <Paperclip className="w-3 h-3" />
+            <div className="bg-blue-500 text-white px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-md" title={`${files.length} file(s) attached`}>
+              <Paperclip className="w-3.5 h-3.5" />
               <span>{files.length}</span>
             </div>
           )}
           {hasTags && (
-            <div className="bg-purple-600 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-1" title={metadata.tags.join(', ')}>
-              <Tag className="w-3 h-3" />
+            <div className="bg-purple-500 text-white px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-md" title={metadata.tags.join(', ')}>
+              <Tag className="w-3.5 h-3.5" />
               <span>{metadata.tags.length}</span>
             </div>
           )}
           {hasLocation && (
-            <div className="bg-green-600 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-1" title={metadata.location}>
-              <MapPin className="w-3 h-3" />
+            <div className="bg-emerald-500 text-white px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-md" title={metadata.location}>
+              <MapPin className="w-3.5 h-3.5" />
             </div>
           )}
           {hasCamera && (
-            <div className="bg-orange-600 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-1" title={metadata.camera}>
-              <Camera className="w-3 h-3" />
+            <div className="bg-orange-500 text-white px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-md" title={metadata.camera}>
+              <Camera className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
@@ -227,57 +229,57 @@ export function DraggableImage({
       {/* Connection points indicator when in connect mode */}
       {canConnect && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-ping" />
-          <div className="absolute w-3 h-3 bg-green-500 rounded-full" />
+          <div className="w-4 h-4 bg-emerald-500 rounded-full animate-ping shadow-lg" />
+          <div className="absolute w-4 h-4 bg-emerald-500 rounded-full shadow-emerald-500/50" />
         </div>
       )}
 
-      {/* Resize Handles */}
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Modern Resize Handles */}
+      <div className="opacity-0 group-hover:opacity-100 transition-all duration-200">
         {/* Corners */}
-        <div 
-          className="absolute bottom-8 -right-1 w-3 h-3 bg-neutral-600 border border-white rounded-sm cursor-se-resize z-20"
+        <div
+          className="absolute bottom-11 -right-1.5 w-4 h-4 bg-gradient-to-br from-slate-600 to-slate-700 border-2 border-white rounded-full cursor-se-resize z-20 shadow-lg hover:scale-125 transition-transform"
           onMouseDown={(e) => handleResizeStart(e, 'se')}
         />
-        <div 
-          className="absolute -top-1 -right-1 w-3 h-3 bg-neutral-600 border border-white rounded-sm cursor-ne-resize z-20"
+        <div
+          className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-gradient-to-br from-slate-600 to-slate-700 border-2 border-white rounded-full cursor-ne-resize z-20 shadow-lg hover:scale-125 transition-transform"
           onMouseDown={(e) => handleResizeStart(e, 'ne')}
         />
-        <div 
-          className="absolute bottom-8 -left-1 w-3 h-3 bg-neutral-600 border border-white rounded-sm cursor-sw-resize z-20"
+        <div
+          className="absolute bottom-11 -left-1.5 w-4 h-4 bg-gradient-to-br from-slate-600 to-slate-700 border-2 border-white rounded-full cursor-sw-resize z-20 shadow-lg hover:scale-125 transition-transform"
           onMouseDown={(e) => handleResizeStart(e, 'sw')}
         />
-        <div 
-          className="absolute -top-1 -left-1 w-3 h-3 bg-neutral-600 border border-white rounded-sm cursor-nw-resize z-20"
+        <div
+          className="absolute -top-1.5 -left-1.5 w-4 h-4 bg-gradient-to-br from-slate-600 to-slate-700 border-2 border-white rounded-full cursor-nw-resize z-20 shadow-lg hover:scale-125 transition-transform"
           onMouseDown={(e) => handleResizeStart(e, 'nw')}
         />
-        
+
         {/* Edges */}
-        <div 
-          className="absolute top-0 right-0 w-1 h-full cursor-e-resize z-20"
+        <div
+          className="absolute top-0 right-0 w-2 h-full cursor-e-resize z-20"
           onMouseDown={(e) => handleResizeStart(e, 'e')}
         />
-        <div 
-          className="absolute bottom-8 left-0 w-full h-1 cursor-s-resize z-20"
+        <div
+          className="absolute bottom-11 left-0 w-full h-2 cursor-s-resize z-20"
           onMouseDown={(e) => handleResizeStart(e, 's')}
         />
       </div>
 
-      {/* Action buttons */}
-      <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-30">
+      {/* Modern Action Buttons */}
+      <div className="absolute -top-3 -right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onConnect(id);
           }}
           title={isConnecting ? "Click to cancel" : "Click to start connecting"}
-          className={`p-1.5 rounded shadow-lg transition-all ${
-            isConnecting 
-              ? 'bg-red-600 text-white scale-110 animate-pulse' 
-              : 'bg-white text-neutral-700 hover:bg-neutral-100 hover:scale-110'
+          className={`p-2 rounded-xl shadow-lg transition-all duration-200 ${
+            isConnecting
+              ? 'bg-gradient-to-br from-rose-500 to-pink-600 text-white scale-110 animate-pulse shadow-rose-500/50'
+              : 'bg-white text-slate-700 hover:bg-gradient-to-br hover:from-blue-500 hover:to-indigo-600 hover:text-white hover:scale-110 shadow-slate-300/50'
           }`}
         >
-          <Link className="w-3 h-3" />
+          <Link className="w-4 h-4" />
         </button>
         <button
           onClick={(e) => {
@@ -285,9 +287,9 @@ export function DraggableImage({
             onDelete(id);
           }}
           title="Delete image"
-          className="p-1.5 bg-white text-red-600 rounded hover:bg-red-50 hover:scale-110 shadow-lg transition-all"
+          className="p-2 bg-white text-slate-700 hover:bg-gradient-to-br hover:from-rose-500 hover:to-red-600 hover:text-white rounded-xl hover:scale-110 shadow-lg shadow-slate-300/50 transition-all duration-200"
         >
-          <Trash2 className="w-3 h-3" />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>
